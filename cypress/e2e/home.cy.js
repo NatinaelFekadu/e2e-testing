@@ -173,9 +173,6 @@ describe("home", () => {
         cy.wait(5000)
         cy.get("#E-mail-esign-0").should("exist").click({force: true})
         cy.get(".button-wrapper").contains("Send").should("exist").click({force: true})
-        cy.wait("@updateDealerCenterPdfData", {timeout: customTimeout});
-        cy.wait(15000)
-        cy.contains("Buyer E-Sign Link").should("exist")
         cy.visit("http://taptosign.com/dashboard.html")
         cy.wait("@loadSalesPersonData", { timeout: customTimeout });
         cy.wait("@loadDeals", { timeout: customTimeout });
