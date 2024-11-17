@@ -69,65 +69,67 @@ describe("home", () => {
         cy.url().should("include", "/dashboard");
         
         // // Interact with the dashboard element
-        // cy.get(".btnSelectFormsblack").contains("Forms Library").should("exist").should("be.visible").click({force: true});
-        // cy.wait("@loadDealershipFormListNew", { timeout: customTimeout })
+        cy.get(".btnSelectFormsblack").contains("Forms Library").should("exist").should("be.visible").click({force: true});
+        cy.wait("@loadDealershipFormListNew", { timeout: customTimeout })
         
-        // // // select a form and create a deal
-        // //target an element with class name which has space separted class names
-        // cy.get(".thumb-view-addForm").first().should("exist").click({force: true})
-        // // cy.get("#formImage0").should("exist").click({force: true})
-        // cy.get("#add-form-button").should("exist").click({force: true})
-        // cy.wait("@uploadSelectedFormNew", { timeout: customTimeout }).then((res) => {
+        // // select a form and create a deal
+        //target an element with class name which has space separted class names
+        cy.get(".thumb-view-addForm").first().should("exist").click({force: true})
+        // cy.get("#formImage0").should("exist").click({force: true})
+        cy.get("#add-form-button").should("exist").click({force: true})
+        cy.wait("@uploadSelectedFormNew", { timeout: customTimeout }).then((res) => {
+            expect(res.response.statusCode).to.eq(200)
+            const body = res.response.body;
+            const parsedBody = typeof body === "string" ? JSON.parse(body) : body;
+            const link = parsedBody.data.link
+            const regex = /authtoken=([^&]*)/; // Match 'authtoken' followed by '=' and capture everything until '&'
+            const match = link.match(regex);
+            const authToken = match ? match[1] : null;
+        
+            // Assert that the authtoken is present
+            expect(authToken).to.not.be.null;
+
+            AuthToken = authToken;
+
+            cy.intercept("GET", `/getDealerCenterPdfData?authtoken=${authToken}*`).as("getDealerCenterPdfData");
+            cy.intercept("GET", `/getRequiredForms?authtoken=${authToken}*`).as("getRequiredForms");
+            cy.intercept("POST", `/getAllLabelForPrepareMode?authtoken=${authToken}*`).as("getAllLabelForPrepareMode");
+            // cy.intercept("POST", `/getFormName?authtoken=${authToken}*`).as("getFormName");
+        
+            cy.intercept("POST", `/updateDealerCenterPDfData?authtoken=${authToken}*`).as("updateDealerCenterPdfData");
+            // cy.wait("@getDealerCenterPdfData", {timeout: customTimeout});
+            cy.wait("@getRequiredForms", {timeout: customTimeout});
+            cy.wait("@getAllLabelForPrepareMode", {timeout: customTimeout});
+        })
+        
+        cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
+        cy.get("#buyerNameFieldInput").type("nathy");
+        cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
+        // cy.get("#buyerEmailFieldInput").type("test@gmail.com", {force: true});+
+        cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
+        cy.get(".buyerlistitem").first().should("exist").click({force: true});
+        cy.wait("@updateDealerCenterPdfData", {timeout: customTimeout});
+        // cy.get("a").contains("✍️").should("exist").click({force: true})
+        // cy.get("#BuyerSignature").should("exist").click({force: true});
+        // cy.get("#thecanvas").should("exist").click({force: true})
+        cy.wait(5000)
+        cy.get("#esign_on_ipad_text").should("exist").click({force: true})
+        // cy.intercept("POST", `/resendDealerCenterNotification?authtoken=${AuthToken}*`).as("sendNotification");
+        // cy.wait("@sendNotification", {timeout: customTimeout}).then((res) => {
         //     expect(res.response.statusCode).to.eq(200)
-        //     const body = res.response.body;
-        //     const parsedBody = typeof body === "string" ? JSON.parse(body) : body;
-        //     const link = parsedBody.data.link
-        //     const regex = /authtoken=([^&]*)/; // Match 'authtoken' followed by '=' and capture everything until '&'
-        //     const match = link.match(regex);
-        //     const authToken = match ? match[1] : null;
-        
-        //     // Assert that the authtoken is present
-        //     expect(authToken).to.not.be.null;
-
-        //     AuthToken = authToken;
-
-        //     cy.intercept("GET", `/getDealerCenterPdfData?authtoken=${authToken}*`).as("getDealerCenterPdfData");
-        //     cy.intercept("GET", `/getRequiredForms?authtoken=${authToken}*`).as("getRequiredForms");
-        //     cy.intercept("POST", `/getAllLabelForPrepareMode?authtoken=${authToken}*`).as("getAllLabelForPrepareMode");
-        //     // cy.intercept("POST", `/getFormName?authtoken=${authToken}*`).as("getFormName");
-        
-        //     cy.intercept("POST", `/updateDealerCenterPDfData?authtoken=${authToken}*`).as("updateDealerCenterPdfData");
-        //     // cy.wait("@getDealerCenterPdfData", {timeout: customTimeout});
-        //     cy.wait("@getRequiredForms", {timeout: customTimeout});
-        //     cy.wait("@getAllLabelForPrepareMode", {timeout: customTimeout});
         // })
+        cy.visit("http://taptosign.com/dashboard.html")
+        cy.wait("@loadSalesPersonData", { timeout: customTimeout });
+        cy.wait("@loadDeals", { timeout: customTimeout });
+        cy.wait(5000)
+        cy.get(".table-button-name").first().contains("Sign In-Person").should("exist").click({force: true})
+        cy.wait(10000)
+        cy.get("#BuyerSignatureDiv-0")
+            .should('exist')
         
-        // cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
-        // cy.get("#buyerNameFieldInput").type("nathy");
-        // cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
-        // // cy.get("#buyerEmailFieldInput").type("test@gmail.com", {force: true});+
-        // cy.wait("@checkDownloadPdfCopy", {timeout: customTimeout});
-        // cy.get(".buyerlistitem").first().should("exist").click({force: true});
-        // cy.wait("@updateDealerCenterPdfData", {timeout: customTimeout});
-        // // cy.get("a").contains("✍️").should("exist").click({force: true})
-        // // cy.get("#BuyerSignature").should("exist").click({force: true});
-        // // cy.get("#thecanvas").should("exist").click({force: true})
-        // cy.wait(5000)
-        // cy.get("#esign_on_ipad_text").should("exist").click({force: true})
-        // // cy.intercept("POST", `/resendDealerCenterNotification?authtoken=${AuthToken}*`).as("sendNotification");
-        // // cy.wait("@sendNotification", {timeout: customTimeout}).then((res) => {
-        // //     expect(res.response.statusCode).to.eq(200)
-        // // })
-        // cy.visit("http://taptosign.com/dashboard.html")
-        // cy.wait("@loadSalesPersonData", { timeout: customTimeout });
-        // cy.wait("@loadDeals", { timeout: customTimeout });
-        // cy.wait(5000)
-        // cy.get(".table-button-name").first().contains("Sign In-Person").should("exist").click({force: true})
-        // cy.wait(10000)
-        // cy.get("#BuyerSignatureDiv-0")
-        //     .should('exist')
-        
-        // cy.visit("http://taptosign.com/dashboard.html")
+        cy.visit("http://taptosign.com/dashboard.html")
+        cy.wait("@loadSalesPersonData", { timeout: customTimeout });
+        cy.wait("@loadDeals", { timeout: customTimeout });
 
         cy.get(".btnSelectFormsblack").contains("Forms Library").should("exist").should("be.visible").click({force: true});
         cy.wait("@loadDealershipFormListNew", { timeout: customTimeout })
