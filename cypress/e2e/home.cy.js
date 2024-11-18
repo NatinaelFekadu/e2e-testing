@@ -1,3 +1,4 @@
+// custom timeout for this suite
 const customTimeout = 30000;
 
 describe("home", () => {
