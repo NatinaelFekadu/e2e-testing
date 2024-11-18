@@ -105,7 +105,7 @@ describe("home", () => {
     cy.wait(5000);
     cy.get("#BuyerSignatureDiv-0").should("exist");
   })
-    it.only("create a new deal and send esign link to email", () => {
+    it("create a new deal and send esign link to email", () => {
 
         cy.visit("http://taptosign.com/dashboard.html");
 
@@ -126,8 +126,8 @@ describe("home", () => {
         cy.wait(5000);
         cy.get(".thumb-view-addForm").first().should("exist").click({ force: true });
         cy.get("#add-form-button").should("exist").click({ force: true });
-        cy.intercept("POST", "/uploadSelectedPdfFormNew?SelectedDealershipId=").as("uploadSelectedFormNew")
-        cy.wait("@uploadSelectedFormNew", { timeout: customTimeout });
+        cy.visit("http://taptosign.com/dashboard.html");
+        cy.wait("@loadDeals", { timeout: customTimeout });
         cy.wait(5000)
         cy.get("td").contains("Edit Deal").first().should("exist").click({ force: true });
 
